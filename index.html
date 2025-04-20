@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultimate Clicker Deluxe v4 - Skórki</title>
+  <style>
+    /* Style podstawowe (takie same jak wcześniej) */
+    body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #121212, #1f1f1f); color: #fff; display: flex; flex-direction: column; align-items: center; padding-bottom: 80px; min-height: 100vh; }
+    h1 { color: gold; text-shadow: 2px 2px 4px #000; margin-top: 20px; margin-bottom: 15px; }
+    .container { width: 90%; max-width: 700px; display: flex; flex-direction: column; align-items: center; }
+    .stats, .shop, .gold-shop, .prestige, .missions, .ranking, .skins-shop { background-color: #2c2c2c; padding: 20px; margin: 10px 0; border-radius: 12px; width: 100%; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); box-sizing: border-box; }
+    h2 { margin-top: 0; color: #ffc107; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; }
+    button { padding: 10px 20px; margin: 8px 5px; border: none; border-radius: 8px; background: gold; color: #000; font-size: 15px; font-weight: bold; cursor: pointer; transition: background-color 0.3s, box-shadow 0.3s, transform 0.1s, border-color 0.3s, color 0.3s; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); vertical-align: middle; }
+    button:hover:not(:disabled) { background: orange; box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4); }
+    button:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+    button:disabled { background-color: #555; color: #999; cursor: not-allowed; box-shadow: none; opacity: 0.6; }
+
+    /* Style dla #clickerBtn i skórek */
+    #clickerBtn {
+        font-size: 24px; padding: 20px 40px; border-radius: 50px;
+        margin-top: 20px; margin-bottom: 10px; border: 3px solid #fff;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4); display: block;
+        margin-left: auto; margin-right: auto;
+        transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease; /* Płynne przejścia dla skórek */
+    }
+    /* Domyślna skórka */
+    .skin-default { background: #ffc107; color: #1f1f1f; border-color: #fff; }
+    .skin-default:hover:not(:disabled) { background: #ffa000; }
+    /* Skórka Lawa */
+    .skin-lava { background: linear-gradient(135deg, #ff4e00, #ff8c00); color: white; border-color: #ffcc00; text-shadow: 1px 1px 2px black; }
+    .skin-lava:hover:not(:disabled) { background: linear-gradient(135deg, #ff6a00, #ffa500); box-shadow: 0 8px 20px rgba(255, 100, 0, 0.5); }
+    /* Skórka Lód */
+    .skin-ice { background: linear-gradient(135deg, #00c6ff, #0072ff); color: white; border-color: #ccf2ff; text-shadow: 1px 1px 2px black; }
+    .skin-ice:hover:not(:disabled) { background: linear-gradient(135deg, #20d6ff, #2082ff); box-shadow: 0 8px 20px rgba(0, 150, 255, 0.5); }
+     /* Skórka Toksyczna */
+    .skin-toxic { background: linear-gradient(135deg, #7fff00, #32cd32); color: black; border-color: #a0ff50; text-shadow: 1px 1px 1px #555; }
+    .skin-toxic:hover:not(:disabled) { background: linear-gradient(135deg, #9fff20, #52ed52); box-shadow: 0 8px 20px rgba(100, 255, 50, 0.5); }
+     /* Skórka Złota (dla bogatych!) */
+    .skin-gold { background: linear-gradient(135deg, #f7d700, #f5be00); color: #4d3800; border: 4px solid #fff9c4; box-shadow: 0 0 20px gold; }
+    .skin-gold:hover:not(:disabled) { background: linear-gradient(135deg, #ffea30, #ffce30); box-shadow: 0 0 30px gold, 0 0 15px white; }
+
+
+    /* Pozostałe style (niezmienione) */
+    .upgrade-item, .mission-item, .skin-item { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #444; }
+    .upgrade-item:last-child, .mission-item:last-child, .skin-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .upgrade-item > div, .mission-item > div, .skin-item > div { flex-grow: 1; margin-right: 10px; }
+    .upgrade-item p, .mission-item p, .skin-item p { margin: 5px 0; font-size: 14px; color: #ccc; line-height: 1.4; }
+    .upgrade-item button, .mission-item button, .skin-item button { flex-shrink: 0; }
+    .mission-item p { display: inline; }
+    .mission-status { font-weight: bold; margin-left: 10px; }
+    .completed { color: lightgreen; } .claimed { color: grey; } .not-completed { color: orange; } .claimable { color: lightblue; font-weight: bold; }
+    #notification-bar { position: fixed; bottom: 0; left: 0; width: 100%; color: gold; text-align: center; padding: 12px 0; font-size: 16px; font-weight: bold; z-index: 1000; opacity: 0; transform: translateY(100%); transition: opacity 0.5s ease-out, transform 0.5s ease-out, background-color 0.3s ease; box-shadow: 0 -2px 10px rgba(0,0,0,0.5); }
+    #notification-bar.show { opacity: 1; transform: translateY(0); }
+    #notification-bar.info { background-color: rgba(44, 44, 44, 0.95); color: #eee; }
+    #notification-bar.success { background-color: rgba(76, 175, 80, 0.95); color: white; }
+    #notification-bar.warning { background-color: rgba(255, 152, 0, 0.95); color: black; }
+    #notification-bar.error { background-color: rgba(244, 67, 54, 0.95); color: white; }
+    .stats p { font-size: 1.1em; margin: 10px 0; }
+    span { font-weight: bold; color: gold; }
+    .description-label { color: #bbb; font-weight: normal; }
+    .timer { font-style: italic; color: cyan; }
+    .skin-preview { /* Mały podgląd skórki */
+        display: inline-block;
+        width: 25px; height: 25px;
+        border: 1px solid #555;
+        border-radius: 5px;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    .skin-item strong { vertical-align: middle; }
+
+  </style>
+</head>
+<body>
+
+  <h1>Ultimate Clicker Deluxe v4 - Skórki</h1>
+
+  <div class="container">
+
+    <div class="stats">
+      <h2>Statystyki</h2>
+      <!-- Statystyki jak wcześniej -->
+      <p><span class="description-label">Punkty:</span> <span id="points">0</span></p>
+      <p><span class="description-label">Złoto:</span> <span id="gold">0</span></p>
+      <p><span class="description-label">Łącznie kliknięć:</span> <span id="totalClicks">0</span></p>
+      <p><span class="description-label">Punkty za Kliknięcie (PPC):</span> <span id="ppc">1</span></p>
+      <p><span class="description-label">Punkty na Sekundę (PPS):</span> <span id="pps">0</span></p>
+      <p><span class="description-label">Mnożnik Prestiżu:</span> x<span id="prestigeMultiplier">1.0</span></p>
+      <p><span class="description-label">Redukcja Kosztów:</span> <span id="discountPercentage">0</span>%</p>
+       <p id="frenzyTimer" class="timer" style="display: none;">Szał Punktów: <span id="frenzyTimeLeft">0</span>s</p>
+      <button id="clickerBtn">Kliknij!</button> <!-- ID zostaje, klasy będą dodawane przez JS -->
+    </div>
+
+    <div class="shop">
+      <h2>Ulepszenia (<span class="description-label">Punkty</span>)</h2>
+      <div id="upgradesContainer"> <!-- Ulepszenia jak wcześniej --> </div>
+    </div>
+
+    <div class="gold-shop">
+      <h2>Bonusy (<span class="description-label">Złoto</span>)</h2>
+       <div id="goldUpgradesContainer"> <!-- Bonusy za złoto jak wcześniej --> </div>
+    </div>
+
+    <!-- NOWA SEKCJA: Skórki -->
+    <div class="skins-shop">
+        <h2>Skórki Przycisku (<span class="description-label">Złoto</span>)</h2>
+        <div id="skinsContainer">
+            <!-- Skórki będą renderowane tutaj przez JS -->
+        </div>
+    </div>
+
+    <div class="prestige">
+      <h2>PRESTIŻ</h2>
+      <div class="upgrade-item"> <!-- Prestiż jak wcześniej -->
+        <div>
+            <p><span class="description-label">Resetuj postępy, aby zyskać <span id="prestigeGoldReward">1</span> Złota i zwiększyć Mnożnik Prestiżu.</span></p>
+            <p><span class="description-label">Wymagane Punkty:</span> <span id="prestigeCost">10000</span></p>
+            <p><span class="description-label">Aktualny Mnożnik:</span> x<span id="prestigeMultiplierValue">1.0</span> <span class="description-label">→ Po prestiżu:</span> x<span id="nextPrestigeMultiplierValue">1.1</span></p>
+        </div>
+        <button id="prestigeBtn">Wykonaj Prestiż!</button>
+      </div>
+    </div>
+
+    <div class="missions">
+      <h2>Misje</h2>
+      <div id="missionsContainer"> <!-- Misje jak wcześniej --> </div>
+    </div>
+
+    <div class="ranking">
+      <h2>Ranking</h2>
+      <!-- Ranking jak wcześniej -->
+      <p><span class="description-label">Najlepszy wynik (tej sesji):</span> <span id="bestScore">0</span></p>
+      <p><span class="description-label">Najwięcej punktów (kiedykolwiek):</span> <span id="allTimeBestScore">0</span></p>
+    </div>
+
+  </div>
+
+  <div id="notification-bar">Wiadomość...</div>
+
+  <script>
+    // --- Formatowanie liczb (bez zmian) ---
+    function formatNumber(num) { /* ... kod formatowania ... */ num = Math.floor(num); if (num < 10000) return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); if (num < 1000000) return (num / 1000).toFixed(1).replace('.', ',') + ' tys.'; if (num < 1000000000) return (num / 1000000).toFixed(1).replace('.', ',') + ' mln'; if (num < 1000000000000) return (num / 1000000000).toFixed(1).replace('.', ',') + ' mld'; return (num / 1000000000000).toFixed(1).replace('.', ',') + ' bln'; }
+
+    // --- Stan Gry ---
+    let gameState = {
+      points: 0, gold: 0, totalClicks: 0, bestScore: 0, allTimeBestScore: 0,
+      prestigeLevel: 0, prestigeMultiplier: 1,
+      pointFrenzyActive: false, pointFrenzyEndTime: 0,
+      lastUpdateTimestamp: Date.now(),
+      // NOWE: Stan skórek
+      unlockedSkinIds: ['default'], // Domyślna zawsze odblokowana
+      activeSkinId: 'default'
+    };
+
+    // --- Definicje Ulepszeń (Punkty) (bez zmian) ---
+    const upgrades = { /* ... kod ulepszeń za punkty ... */
+        clickPower: { name: "Siła Kliknięcia", description: "Zwiększa punkty za *ręczne* kliknięcie.", baseCost: 10, costMultiplier: 1.15, level: 0, effectBase: 1, getCost: function() { return Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.level) * getDiscountMultiplier()); }, getEffectDescription: function() { const bonus = this.effectBase * goldUpgrades.doubleClick.getEffectMultiplier() * calculatePrestigePointMultiplier(); return `+${formatNumber(bonus)} do bazowego PPC`; } },
+        autoClicker: { name: "Auto Klikacz", description: "Generuje punkty co sekundę.", baseCost: 50, costMultiplier: 1.2, level: 0, effectBase: 1, getCost: function() { return Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.level) * getDiscountMultiplier()); }, getEffectDescription: function() { const bonus = this.effectBase * calculateTotalPPSMultiplier(); return `+${formatNumber(bonus)} PPS`; } },
+        superClicker: { name: "Super Klikacz", description: "Generuje znacznie więcej punktów co sekundę.", baseCost: 500, costMultiplier: 1.25, level: 0, effectBase: 5, getCost: function() { return Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.level) * getDiscountMultiplier()); }, getEffectDescription: function() { const bonus = this.effectBase * calculateTotalPPSMultiplier(); return `+${formatNumber(bonus)} PPS`; } },
+        clickerSynergy: { name: "Synergia Klikaczy", description: "Zwiększa efektywność Auto i Super Klikaczy.", baseCost: 2500, costMultiplier: 1.8, level: 0, effectBase: 0.05, getCost: function() { return Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.level) * getDiscountMultiplier()); }, getEffectMultiplier: function() { return 1 + this.level * this.effectBase; }, getEffectDescription: function() { return `Mnożnik PPS x${(this.getEffectMultiplier()).toFixed(2)}`; } },
+        luckyClick: { name: "Szczęśliwy Traf", description: "Szansa na bonusowe punkty przy kliknięciu.", baseCost: 5000, costMultiplier: 2.5, level: 0, effectBase: 0.01, bonusMultiplier: 10, getCost: function() { return Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.level) * getDiscountMultiplier()); }, getChance: function() { return Math.min(this.level * this.effectBase, 0.5); }, getEffectDescription: function() { return `${(this.getChance() * 100).toFixed(1)}% szansy na ${this.bonusMultiplier}x PPC`; } },
+        discount: { name: "Mistrz Negocjacji", description: "Obniża koszt wszystkich ulepszeń za punkty.", baseCost: 100000, costMultiplier: 5, level: 0, effectBase: 0.02, getCost: function() { return Math.floor(this.baseCost * Math.pow(this.costMultiplier, this.level)); }, getDiscount: function() { return Math.min(this.level * this.effectBase, 0.5); }, getEffectDescription: function() { return `Zniżka ${ (this.getDiscount() * 100).toFixed(0) }%`; } }
+    };
+
+    // --- Definicje Ulepszeń za Złoto (bez zmian) ---
+    const goldUpgrades = { /* ... kod ulepszeń za złoto ... */
+        bonusPoints: { name: "+1000 Punktów", description: "Natychmiast dodaje 1000 punktów (skalowane z prestiżem).", cost: 1, isOneTime: true, persistOnPrestige: false, purchased: false, applyEffect: function() { gameState.points += 1000 * calculatePrestigePointMultiplier(); }, isAvailable: function() { return gameState.gold >= this.cost; } },
+        doubleClick: { name: "Moc Podwójnego Kliknięcia", description: "Podwaja punkty zdobywane za ręczne kliknięcia (Trwałe).", cost: 5, isOneTime: false, persistOnPrestige: true, purchased: false, applyEffect: function() { this.purchased = true; }, isAvailable: function() { return !this.purchased && gameState.gold >= this.cost; }, getEffectMultiplier: function() { return this.purchased ? 2 : 1; } },
+        ppsMultiplier: { name: "Trwały Mnożnik PPS", description: "Zwiększa pasywny dochód punktów (PPS) o 10% (Trwałe).", cost: 10, isOneTime: false, persistOnPrestige: true, purchased: false, effectValue: 0.10, applyEffect: function() { this.purchased = true; }, isAvailable: function() { return !this.purchased && gameState.gold >= this.cost; }, getEffectMultiplier: function() { return this.purchased ? (1 + this.effectValue) : 1; } },
+        goldenPrestige: { name: "Złoty Prestiż", description: "Otrzymujesz +1 dodatkowe złoto za każdy prestiż (Trwałe).", cost: 15, isOneTime: false, persistOnPrestige: true, purchased: false, bonusGold: 1, applyEffect: function() { this.purchased = true; }, isAvailable: function() { return !this.purchased && gameState.gold >= this.cost; }, getBonusGold: function() { return this.purchased ? this.bonusGold : 0; } },
+        pointFrenzy: { name: "Szał Punktów (60s)", description: "Mnoży WSZYSTKIE zdobywane punkty x5 na 60 sekund.", cost: 3, isOneTime: true, persistOnPrestige: false, purchased: false, duration: 60, multiplier: 5, applyEffect: function() { gameState.pointFrenzyActive = true; gameState.pointFrenzyEndTime = Date.now() + this.duration * 1000; showNotification(`Szał Punktów aktywny! x${this.multiplier} przez ${this.duration}s!`, 'success', 5000); updateFrenzyTimerDisplay(); }, isAvailable: function() { return !gameState.pointFrenzyActive && gameState.gold >= this.cost; } }
+    };
+
+     // --- NOWA DEFINICJA: Skórki ---
+     const skins = {
+        'default': { name: "Domyślna", cost: 0, cssClass: 'skin-default' },
+        'lava': { name: "Lawa", cost: 10, cssClass: 'skin-lava' },
+        'ice': { name: "Lód", cost: 10, cssClass: 'skin-ice' },
+        'toxic': { name: "Toksyczna", cost: 15, cssClass: 'skin-toxic' },
+        'gold': { name: "Złota", cost: 50, cssClass: 'skin-gold' }
+        // Można dodać więcej skórek
+    };
+
+    // --- Definicje Misji (bez zmian) ---
+    let missions = [ /* ... kod misji ... */
+        { id: "click100", description: "Wykonaj 100 kliknięć", checkCondition: () => gameState.totalClicks >= 100, reward: { type: "points", amount: 250 }, status: 0 },
+        { id: "points1k", description: "Zdobądź 1 000 punktów", checkCondition: () => gameState.points >= 1000, reward: { type: "points", amount: 500 }, status: 0 },
+        { id: "buyClickPower5", description: "Osiągnij Poziom 5 Siły Kliknięcia", checkCondition: () => upgrades.clickPower.level >= 4, reward: { type: "gold", amount: 1 }, status: 0 },
+        { id: "buyAutoClicker1", description: "Kup pierwszy Auto Klikacz", checkCondition: () => upgrades.autoClicker.level >= 1, reward: { type: "points", amount: 1000 }, status: 0 },
+        { id: "reachPrestige1", description: "Wykonaj pierwszy Prestiż", checkCondition: () => gameState.prestigeLevel >= 1, reward: { type: "gold", amount: 2 }, status: 0 },
+        { id: "points1M", description: "Zdobądź 1 Milion punktów", checkCondition: () => gameState.points >= 1000000, reward: { type: "points", amount: 50000 }, status: 0 },
+        { id: "points1B", description: "Zdobądź 1 Miliard punktów", checkCondition: () => gameState.points >= 1000000000, reward: { type: "gold", amount: 10 }, status: 0 },
+        { id: "buySynergy1", description: "Kup pierwszą Synergię Klikaczy", checkCondition: () => upgrades.clickerSynergy.level >= 1, reward: { type: "points", amount: 20000 }, status: 0 },
+        { id: "buyDiscount1", description: "Kup pierwszego Mistrza Negocjacji", checkCondition: () => upgrades.discount.level >= 1, reward: { type: "gold", amount: 5 }, status: 0 },
+        { id: "have10Gold", description: "Posiadaj 10 złota jednocześnie", checkCondition: () => gameState.gold >= 10, reward: { type: "points", amount: 100000 }, status: 0 },
+        { id: "have50Gold", description: "Posiadaj 50 złota jednocześnie", checkCondition: () => gameState.gold >= 50, reward: { type: "gold", amount: 25 }, status: 0 },
+        { id: "reachPrestige5", description: "Osiągnij 5 Poziom Prestiżu", checkCondition: () => gameState.prestigeLevel >= 5, reward: { type: "gold", amount: 5 }, status: 0 },
+        { id: "reachPrestige10", description: "Osiągnij 10 Poziom Prestiżu", checkCondition: () => gameState.prestigeLevel >= 10, reward: { type: "points", amount: 1000000 }, status: 0 },
+        { id: "buyAllGoldPersist", description: "Kup wszystkie trwałe ulepszenia za złoto", checkCondition: () => goldUpgrades.doubleClick.purchased && goldUpgrades.ppsMultiplier.purchased && goldUpgrades.goldenPrestige.purchased, reward: { type: "gold", amount: 100 }, status: 0 },
+        { id: "activateFrenzy", description: "Aktywuj Szał Punktów", checkCondition: () => gameState.pointFrenzyActive, reward: { type: "points", amount: 5000 }, status: 0 },
+        // NOWA MISJA: Odblokuj skórkę
+        { id: "unlockSkin", description: "Odblokuj przynajmniej jedną płatną skórkę", checkCondition: () => gameState.unlockedSkinIds.length > 1, reward: { type: "gold", amount: 3 }, status: 0 }
+    ];
+
+    // --- Funkcje Pomocnicze (bez zmian) ---
+    function applyReward(reward) { /* ... kod applyReward ... */ let actualAmount = reward.amount; if (reward.type === "points") { gameState.points += actualAmount; showNotification(`+${formatNumber(actualAmount)} Punktów!`, 'success'); } else if (reward.type === "gold") { gameState.gold += actualAmount; showNotification(`+${formatNumber(actualAmount)} Złota!`, 'success'); } updateDisplay(); }
+    function getDiscountMultiplier() { return 1 - upgrades.discount.getDiscount(); }
+    function calculatePrestigePointMultiplier() { let frenzyMultiplier = gameState.pointFrenzyActive ? goldUpgrades.pointFrenzy.multiplier : 1; return gameState.prestigeMultiplier * frenzyMultiplier; }
+    function calculateTotalPPSMultiplier() { let frenzyMultiplier = gameState.pointFrenzyActive ? goldUpgrades.pointFrenzy.multiplier : 1; return gameState.prestigeMultiplier * upgrades.clickerSynergy.getEffectMultiplier() * goldUpgrades.ppsMultiplier.getEffectMultiplier() * frenzyMultiplier; }
+
+    // --- Elementy DOM (cache) ---
+    const dom = { /* ... cache elementów DOM ... */
+        points: document.getElementById('points'), gold: document.getElementById('gold'), totalClicks: document.getElementById('totalClicks'),
+        ppc: document.getElementById('ppc'), pps: document.getElementById('pps'), prestigeMultiplier: document.getElementById('prestigeMultiplier'),
+        discountPercentage: document.getElementById('discountPercentage'), frenzyTimer: document.getElementById('frenzyTimer'), frenzyTimeLeft: document.getElementById('frenzyTimeLeft'),
+        bestScore: document.getElementById('bestScore'), allTimeBestScore: document.getElementById('allTimeBestScore'),
+        clickerBtn: document.getElementById('clickerBtn'), upgradesContainer: document.getElementById('upgradesContainer'),
+        goldUpgradesContainer: document.getElementById('goldUpgradesContainer'),
+        skinsContainer: document.getElementById('skinsContainer'), // NOWY
+        prestigeBtn: document.getElementById('prestigeBtn'),
+        prestigeCost: document.getElementById('prestigeCost'), prestigeGoldReward: document.getElementById('prestigeGoldReward'),
+        prestigeMultiplierValue: document.getElementById('prestigeMultiplierValue'), nextPrestigeMultiplierValue: document.getElementById('nextPrestigeMultiplierValue'),
+        missionsContainer: document.getElementById('missionsContainer'), notificationBar: document.getElementById('notification-bar')
+    };
+    let notificationTimeout;
+
+    // --- Aktualizacja Wyświetlania ---
+    function updateDisplay() {
+      // Statystyki, Ulepszenia, Bonusy, Prestiż, Misje, Ranking (jak wcześniej)
+      dom.points.textContent = formatNumber(gameState.points);
+      dom.gold.textContent = formatNumber(gameState.gold);
+      dom.totalClicks.textContent = formatNumber(gameState.totalClicks);
+      dom.bestScore.textContent = formatNumber(gameState.bestScore);
+      dom.allTimeBestScore.textContent = formatNumber(gameState.allTimeBestScore);
+      dom.discountPercentage.textContent = (upgrades.discount.getDiscount() * 100).toFixed(0);
+      const currentPPC = calculatePPC(); const currentPPS = calculatePPS();
+      dom.ppc.textContent = formatNumber(currentPPC); dom.pps.textContent = formatNumber(currentPPS);
+      const prestigeCost = calculatePrestigeCost(); const prestigeGold = 1 + goldUpgrades.goldenPrestige.getBonusGold();
+      dom.prestigeMultiplier.textContent = gameState.prestigeMultiplier.toFixed(1);
+      dom.prestigeCost.textContent = formatNumber(prestigeCost); dom.prestigeGoldReward.textContent = prestigeGold;
+      dom.prestigeBtn.disabled = gameState.points < prestigeCost;
+      dom.prestigeMultiplierValue.textContent = gameState.prestigeMultiplier.toFixed(1);
+      const nextMultiplier = 1 + (gameState.prestigeLevel + 1) * 0.1;
+      dom.nextPrestigeMultiplierValue.textContent = nextMultiplier.toFixed(1);
+
+      // Renderowanie Ulepszeń (jak wcześniej)
+      dom.upgradesContainer.innerHTML = '';
+      for (const id in upgrades) { /* ... kod renderowania ulepszeń ... */
+        const upg = upgrades[id]; const currentCost = upg.getCost(); const canAfford = gameState.points >= currentCost;
+        const div = document.createElement('div'); div.classList.add('upgrade-item');
+        const levelDisplay = (id === 'clickPower') ? upg.level + 1 : upg.level;
+        div.innerHTML = `<div><strong>${upg.name} (Poziom ${levelDisplay})</strong><p>${upg.description}</p><p><span class="description-label">Efekt:</span> ${upg.getEffectDescription()}</p></div><button data-upgrade-id="${id}" ${!canAfford ? 'disabled' : ''}><span class="description-label">Koszt:</span> ${formatNumber(currentCost)}</button>`;
+        dom.upgradesContainer.appendChild(div);
+       }
+      dom.upgradesContainer.querySelectorAll('button[data-upgrade-id]').forEach(button => { button.addEventListener('click', () => buyUpgrade(button.dataset.upgradeId)); });
+
+       // Renderowanie Bonusów za Złoto (jak wcześniej)
+       dom.goldUpgradesContainer.innerHTML = '';
+       for (const id in goldUpgrades) { /* ... kod renderowania bonusów za złoto ... */
+            const upg = goldUpgrades[id]; const div = document.createElement('div'); div.classList.add('upgrade-item'); const canAfford = upg.isAvailable();
+            let buttonHTML = ''; if (upg.isOneTime) { buttonHTML = `<button data-goldupgrade-id="${id}" ${!canAfford ? 'disabled' : ''}><span class="description-label">Koszt:</span> ${formatNumber(upg.cost)} Złota</button>`; } else { if (!upg.purchased) { buttonHTML = `<button data-goldupgrade-id="${id}" ${!canAfford ? 'disabled' : ''}><span class="description-label">Koszt:</span> ${formatNumber(upg.cost)} Złota</button>`; } else { buttonHTML = `<button disabled>Kupione</button>`; } }
+            div.innerHTML = `<div><strong>${upg.name}</strong><p>${upg.description}</p></div>${buttonHTML}`;
+            dom.goldUpgradesContainer.appendChild(div);
+        }
+       dom.goldUpgradesContainer.querySelectorAll('button[data-goldupgrade-id]').forEach(button => { button.addEventListener('click', () => buyGoldUpgrade(button.dataset.goldupgradeId)); });
+
+
+      // NOWE: Renderowanie Skórek
+      dom.skinsContainer.innerHTML = '';
+      for (const id in skins) {
+          const skin = skins[id];
+          const isUnlocked = gameState.unlockedSkinIds.includes(id);
+          const isActive = gameState.activeSkinId === id;
+          const canAfford = gameState.gold >= skin.cost;
+
+          const div = document.createElement('div');
+          div.classList.add('skin-item');
+
+          let buttonHTML = '';
+          if (isActive) {
+              buttonHTML = `<button disabled>Aktywna</button>`;
+          } else if (isUnlocked) {
+              buttonHTML = `<button data-skin-id="${id}" data-action="activate">Aktywuj</button>`;
+          } else {
+              buttonHTML = `<button data-skin-id="${id}" data-action="buy" ${!canAfford ? 'disabled' : ''}>Kup (${formatNumber(skin.cost)} Złota)</button>`;
+          }
+
+          // Dodanie małego podglądu koloru/gradientu
+          const previewSpan = `<span class="skin-preview ${skin.cssClass}" style="background: ${window.getComputedStyle(dom.clickerBtn).background};"></span>`;
+          // Uwaga: Pobieranie stylu z CSS może nie zadziałać idealnie dla gradientów przed pierwszym nałożeniem klasy, ale da jakiś obraz.
+          // Lepszym rozwiązaniem byłoby zdefiniowanie kolorów/gradientów w obiekcie `skins` i użycie ich tutaj.
+          // Dla uproszczenia zostawiam tak - podgląd pojawi się poprawnie po odblokowaniu i aktywowaniu.
+
+          div.innerHTML = `
+            <div>
+              <span class="skin-preview ${skin.cssClass}"></span>
+              <strong>${skin.name}</strong>
+            </div>
+            ${buttonHTML}
+          `;
+          dom.skinsContainer.appendChild(div);
+      }
+      // Listenery dla przycisków skórek
+      dom.skinsContainer.querySelectorAll('button[data-skin-id]').forEach(button => {
+          button.addEventListener('click', () => {
+              const skinId = button.dataset.skinId;
+              const action = button.dataset.action;
+              if (action === 'buy') {
+                  buySkin(skinId);
+              } else if (action === 'activate') {
+                  activateSkin(skinId);
+              }
+          });
+      });
+
+      // Renderowanie Misji (jak wcześniej)
+      dom.missionsContainer.innerHTML = '';
+      missions.forEach(mission => { /* ... kod renderowania misji ... */
+            const div = document.createElement('div'); div.classList.add('mission-item'); let statusText = "Nieukończona"; let statusClass = "not-completed"; let buttonDisabled = true; let buttonText = "Status";
+            if (mission.status === 1) { statusText = "Gotowa!"; statusClass = "claimable"; buttonDisabled = false; buttonText = "Odbierz"; } else if (mission.status === 2) { statusText = "Ukończona"; statusClass = "claimed"; buttonText = "Odebrana"; }
+            let rewardText = `(<span class="description-label">Nagroda:</span> ${formatNumber(mission.reward.amount)} ${mission.reward.type === 'points' ? 'pkt' : 'złota'})`;
+            div.innerHTML = `<div> <p>${mission.description} ${rewardText}</p> </div> <button data-mission-id="${mission.id}" ${buttonDisabled ? 'disabled' : ''} class="${statusClass}"> ${buttonText} </button>`;
+            dom.missionsContainer.appendChild(div);
+       });
+       dom.missionsContainer.querySelectorAll('button[data-mission-id]').forEach(button => { button.addEventListener('click', () => claimMissionReward(button.dataset.missionId)); });
+
+       // Stosowanie aktywnej skórki do przycisku
+        // Usuń wszystkie istniejące klasy skórek
+        Object.values(skins).forEach(skin => dom.clickerBtn.classList.remove(skin.cssClass));
+        // Dodaj klasę aktywnej skórki
+        if (skins[gameState.activeSkinId]) {
+            dom.clickerBtn.classList.add(skins[gameState.activeSkinId].cssClass);
+        } else {
+            dom.clickerBtn.classList.add(skins['default'].cssClass); // Fallback na domyślną
+        }
+
+
+       // Timer Szału Punktów (jak wcześniej)
+       updateFrenzyTimerDisplay();
+    }
+
+    // Aktualizacja timera (bez zmian)
+    function updateFrenzyTimerDisplay() { /* ... kod updateFrenzyTimerDisplay ... */ if (gameState.pointFrenzyActive) { const timeLeft = Math.max(0, Math.ceil((gameState.pointFrenzyEndTime - Date.now()) / 1000)); dom.frenzyTimeLeft.textContent = timeLeft; dom.frenzyTimer.style.display = 'block'; if (timeLeft <= 0) { gameState.pointFrenzyActive = false; dom.frenzyTimer.style.display = 'none'; showNotification("Szał Punktów zakończony.", 'info'); updateDisplay(); } } else { dom.frenzyTimer.style.display = 'none'; } }
+
+
+    // --- Logika Gry ---
+    // Obliczenia PPC, PPS, kosztu prestiżu (bez zmian)
+    function calculatePPC() { /* ... kod calculatePPC ... */ const basePPC = 1 + upgrades.clickPower.level * upgrades.clickPower.effectBase; const doubleClickMultiplier = goldUpgrades.doubleClick.getEffectMultiplier(); const pointMultiplier = calculatePrestigePointMultiplier(); return Math.floor(basePPC * doubleClickMultiplier * pointMultiplier); }
+    function calculatePPS() { /* ... kod calculatePPS ... */ const autoClickerBasePPS = upgrades.autoClicker.level * upgrades.autoClicker.effectBase; const superClickerBasePPS = upgrades.superClicker.level * upgrades.superClicker.effectBase; const totalBasePPS = autoClickerBasePPS + superClickerBasePPS; const ppsMultiplier = calculateTotalPPSMultiplier(); return Math.floor(totalBasePPS * ppsMultiplier); }
+    function calculatePrestigeCost() { return Math.floor(10000 * Math.pow(3, gameState.prestigeLevel)); }
+
+    // Kliknięcie (bez zmian w logice punktów, tylko wywołanie updateDisplay)
+    function clickButton() { /* ... kod clickButton ... */ const pointsPerClick = calculatePPC(); gameState.points += pointsPerClick; gameState.totalClicks++; const luckyChance = upgrades.luckyClick.getChance(); if (Math.random() < luckyChance) { const bonusPoints = pointsPerClick * (upgrades.luckyClick.bonusMultiplier - 1); gameState.points += bonusPoints; showNotification(`Szczęśliwy Traf! +${formatNumber(bonusPoints)} punktów!`, 'success', 1500); } checkMissionCompletion(); updateGameState(); updateDisplay(); }
+
+    // Kupowanie ulepszeń i bonusów (bez zmian)
+    function buyUpgrade(id) { /* ... kod buyUpgrade ... */ const upg = upgrades[id]; const currentCost = upg.getCost(); if (gameState.points >= currentCost) { gameState.points -= currentCost; upg.level++; checkMissionCompletion(); const levelDisplay = (id === 'clickPower') ? upg.level + 1 : upg.level; showNotification(`Kupiono: ${upg.name} (Poziom ${levelDisplay})`, 'info'); updateDisplay(); } else { showNotification("Za mało punktów!", 'warning'); } }
+    function buyGoldUpgrade(id) { /* ... kod buyGoldUpgrade ... */ const upg = goldUpgrades[id]; if (upg.isAvailable()) { gameState.gold -= upg.cost; upg.applyEffect(); if (id !== 'pointFrenzy') { showNotification(`Zakupiono: ${upg.name}!`, 'success'); } checkMissionCompletion(); updateDisplay(); } else { if (!upg.isOneTime && upg.purchased) { showNotification("Już posiadasz to ulepszenie!", 'info'); } else if (id === 'pointFrenzy' && gameState.pointFrenzyActive) { showNotification("Szał Punktów jest już aktywny!", 'warning'); } else { showNotification("Za mało złota!", 'warning'); } } }
+
+    // NOWE Funkcje dla Skórek
+    function buySkin(skinId) {
+        const skin = skins[skinId];
+        if (!skin || skin.cost === 0) return; // Nie można kupić domyślnej lub nieistniejącej
+        if (gameState.unlockedSkinIds.includes(skinId)) {
+             showNotification("Już posiadasz tę skórkę!", 'info');
+             return;
+        }
+        if (gameState.gold >= skin.cost) {
+            gameState.gold -= skin.cost;
+            gameState.unlockedSkinIds.push(skinId);
+            showNotification(`Odblokowano skórkę: ${skin.name}!`, 'success');
+            checkMissionCompletion(); // Sprawdź misję za odblokowanie skórki
+            updateDisplay();
+            // saveGame(); // Zapisz po zakupie
+        } else {
+            showNotification("Za mało złota!", 'warning');
+        }
+    }
+
+    function activateSkin(skinId) {
+        if (!skins[skinId]) return; // Nieznana skórka
+        if (!gameState.unlockedSkinIds.includes(skinId)) {
+            showNotification("Musisz najpierw odblokować tę skórkę!", 'warning');
+            return;
+        }
+        if (gameState.activeSkinId !== skinId) {
+            gameState.activeSkinId = skinId;
+            showNotification(`Aktywowano skórkę: ${skins[skinId].name}`, 'info');
+            updateDisplay(); // Odśwież UI (zmieni przycisk i nałoży klasę)
+            // saveGame(); // Zapisz zmianę skórki
+        }
+    }
+
+
+    // Prestiż (teraz nie resetuje skórek)
+    function prestige() {
+      const prestigeCost = calculatePrestigeCost();
+      if (gameState.points >= prestigeCost) {
+        // Zachowaj stan trwałych ulepszeń złota ORAZ stan skórek
+        let goldUpgradesState = {};
+        for (const id in goldUpgrades) { if (goldUpgrades[id].persistOnPrestige) { goldUpgradesState[id] = { purchased: goldUpgrades[id].purchased }; } }
+        let skinsState = { unlockedSkinIds: [...gameState.unlockedSkinIds], activeSkinId: gameState.activeSkinId }; // Kopia stanu skórek
+
+        // Reset punktów, ulepszeń za punkty, bonusów tymczasowych
+        gameState.points = 0; gameState.bestScore = 0;
+        Object.values(upgrades).forEach(u => u.level = 0);
+        gameState.pointFrenzyActive = false; gameState.pointFrenzyEndTime = 0;
+
+        // Przywróć stan trwałych ulepszeń złota
+        for (const id in goldUpgradesState) { if (goldUpgrades[id]) { goldUpgrades[id].purchased = goldUpgradesState[id].purchased; } }
+        // Przywróć stan skórek
+        gameState.unlockedSkinIds = skinsState.unlockedSkinIds;
+        gameState.activeSkinId = skinsState.activeSkinId;
+
+        // Logika Prestiżu (jak wcześniej)
+        gameState.prestigeLevel++; gameState.prestigeMultiplier = 1 + gameState.prestigeLevel * 0.1;
+        const goldReward = 1 + goldUpgrades.goldenPrestige.getBonusGold(); gameState.gold += goldReward;
+        missions.forEach(mission => { if (mission.status !== 2) { mission.status = 0; } });
+
+        checkMissionCompletion();
+        showNotification(`Prestiż ${gameState.prestigeLevel} osiągnięty! Otrzymujesz ${goldReward} złota i mnożnik x${gameState.prestigeMultiplier.toFixed(1)}!`, 'success', 5000);
+        updateDisplay();
+      } else {
+        showNotification(`Potrzebujesz ${formatNumber(prestigeCost)} punktów na prestiż!`, 'warning');
+      }
+    }
+
+    // Sprawdzanie i odbieranie misji (bez zmian)
+    function checkMissionCompletion() { /* ... kod checkMissionCompletion ... */ let missionCompletedThisCheck = false; missions.forEach(mission => { if (mission.status === 0 && mission.checkCondition()) { mission.status = 1; showNotification(`Misja ukończona: ${mission.description}! Odbierz nagrodę.`, 'info'); missionCompletedThisCheck = true; } }); if (missionCompletedThisCheck) { updateDisplay(); } }
+    function claimMissionReward(missionId) { /* ... kod claimMissionReward ... */ const mission = missions.find(m => m.id === missionId); if (mission && mission.status === 1) { mission.status = 2; applyReward(mission.reward); updateDisplay(); } }
+
+    // Aktualizacja stanu gry (bez zmian)
+    function updateGameState() { /* ... kod updateGameState ... */ if (gameState.points > gameState.bestScore) { gameState.bestScore = gameState.points; } if (gameState.points > gameState.allTimeBestScore) { gameState.allTimeBestScore = gameState.points; } if (gameState.pointFrenzyActive && Date.now() >= gameState.pointFrenzyEndTime) { gameState.pointFrenzyActive = false; showNotification("Szał Punktów zakończony.", 'info'); updateFrenzyTimerDisplay(); updateDisplay(); } gameState.lastUpdateTimestamp = Date.now(); }
+
+    // Pętle gry i odświeżania (bez zmian)
+    function gameLoop() { /* ... kod gameLoop ... */ const now = Date.now(); const deltaSeconds = (now - gameState.lastUpdateTimestamp) / 1000; const pointsFromPPS = calculatePPS() * deltaSeconds; if (pointsFromPPS > 0) { gameState.points += pointsFromPPS; checkMissionCompletion(); updateGameState(); } else { updateGameState(); } }
+    function frequentUpdate() { /* ... kod frequentUpdate ... */ updateDisplay(); if (gameState.pointFrenzyActive) { updateFrenzyTimerDisplay(); } }
+
+    // --- Zapis/Odczyt Gry ---
+    function saveGame() {
+        const saveData = {
+            version: "v5", // NOWA WERSJA ZAPISU
+            timestamp: Date.now(),
+            gameState: gameState, // Zapisujemy cały gameState, w tym stan skórek
+            upgrades: {},
+            goldUpgrades: {},
+            missions: missions.map(m => ({ id: m.id, status: m.status }))
+        };
+        for (const id in upgrades) { saveData.upgrades[id] = { level: upgrades[id].level }; }
+        for (const id in goldUpgrades) { if (goldUpgrades[id].hasOwnProperty('purchased')) { saveData.goldUpgrades[id] = { purchased: goldUpgrades[id].purchased }; } }
+
+      try { localStorage.setItem("ultimateClickerDeluxeSave_v5", JSON.stringify(saveData)); }
+      catch (error) { console.error("Błąd zapisu gry:", error); showNotification("Błąd zapisu gry!", 'error', 10000); }
+    }
+
+    function loadGame() {
+      const savedDataString = localStorage.getItem("ultimateClickerDeluxeSave_v5");
+      let loadedSuccessfully = false;
+      if (savedDataString) {
+        try {
+            const loadedData = JSON.parse(savedDataString);
+            if (loadedData.version !== "v5") { throw new Error("Niekompatybilna wersja zapisu v5"); }
+
+            // Bezpieczne wczytanie gameState, uwzględniając nowe pola skórek
+            const defaultGameState = { points: 0, gold: 0, totalClicks: 0, bestScore: 0, allTimeBestScore: 0, prestigeLevel: 0, prestigeMultiplier: 1, pointFrenzyActive: false, pointFrenzyEndTime: 0, lastUpdateTimestamp: Date.now(), unlockedSkinIds: ['default'], activeSkinId: 'default' };
+            // Scalamy, upewniając się, że nowe pola (skórki) są obecne, jeśli zapis jest starszy (chociaż wersja powinna to wyłapać)
+             gameState = { ...defaultGameState, ...(loadedData.gameState || {}) };
+             // Upewnij się, że domyślna skórka jest zawsze odblokowana
+            if (!gameState.unlockedSkinIds || !Array.isArray(gameState.unlockedSkinIds)) {
+                 gameState.unlockedSkinIds = ['default'];
+             } else if (!gameState.unlockedSkinIds.includes('default')) {
+                 gameState.unlockedSkinIds.push('default');
+             }
+             // Upewnij się, że aktywna skórka jest odblokowana
+            if (!gameState.activeSkinId || !gameState.unlockedSkinIds.includes(gameState.activeSkinId)) {
+                 gameState.activeSkinId = 'default';
+             }
+
+             gameState.prestigeMultiplier = 1 + gameState.prestigeLevel * 0.1;
+
+            // Punkty offline (jak wcześniej)
+            const offlineTimeSeconds = (Date.now() - (gameState.lastUpdateTimestamp || Date.now())) / 1000; // Użyj now(), jeśli timestamp brakuje
+            if (offlineTimeSeconds > 10) {
+                // Wczytaj ulepszenia PRZED obliczeniem PPS offline
+                if (loadedData.upgrades) { for (const id in upgrades) { if (loadedData.upgrades[id]) upgrades[id].level = loadedData.upgrades[id].level || 0; else upgrades[id].level = 0; } }
+                if (loadedData.goldUpgrades) { for (const id in goldUpgrades) { if (goldUpgrades[id].hasOwnProperty('purchased')) { goldUpgrades[id].purchased = (loadedData.goldUpgrades[id] && loadedData.goldUpgrades[id].purchased) || false; } } }
+
+                const offlinePPS = calculatePPS();
+                const offlinePoints = Math.min(offlinePPS * offlineTimeSeconds, offlinePPS * 3600 * 8);
+                if (offlinePoints > 0) { gameState.points += offlinePoints; showNotification(`Witaj z powrotem! Zdobyłeś ${formatNumber(offlinePoints)} punktów będąc offline.`, 'info', 5000); }
+            }
+            // Wczytaj ulepszenia ponownie dla pewności
+             if (loadedData.upgrades) { for (const id in upgrades) { if (loadedData.upgrades[id]) upgrades[id].level = loadedData.upgrades[id].level || 0; else upgrades[id].level = 0; } }
+             if (loadedData.goldUpgrades) { for (const id in goldUpgrades) { if (goldUpgrades[id].hasOwnProperty('purchased')) { goldUpgrades[id].purchased = (loadedData.goldUpgrades[id] && loadedData.goldUpgrades[id].purchased) || false; } } }
+
+            // Wczytaj misje (jak wcześniej)
+            if (loadedData.missions) { /* ... kod wczytywania misji ... */ const savedStatuses = {}; loadedData.missions.forEach(sm => { savedStatuses[sm.id] = sm.status; }); missions.forEach(mission => { mission.status = savedStatuses[mission.id] !== undefined ? savedStatuses[mission.id] : 0; }); }
+
+            gameState.lastUpdateTimestamp = Date.now();
+            console.log("Game Loaded (v5)");
+            loadedSuccessfully = true;
+        } catch (error) {
+            console.error("Error loading saved game (v5):", error);
+            localStorage.removeItem("ultimateClickerDeluxeSave_v5");
+            showNotification("Błąd odczytu zapisu v5. Resetowanie gry.", 'error', 5000);
+        }
+      }
+
+      if (!loadedSuccessfully) {
+          // Reset do stanu domyślnego (już uwzględnia domyślne skórki)
+          gameState = { points: 0, gold: 0, totalClicks: 0, bestScore: 0, allTimeBestScore: 0, prestigeLevel: 0, prestigeMultiplier: 1, pointFrenzyActive: false, pointFrenzyEndTime: 0, lastUpdateTimestamp: Date.now(), unlockedSkinIds: ['default'], activeSkinId: 'default' };
+          Object.values(upgrades).forEach(u => u.level = 0);
+          Object.values(goldUpgrades).forEach(u => { if(u.hasOwnProperty('purchased')) u.purchased = false; });
+          missions.forEach(m => m.status = 0);
+          console.log("Starting new game (v5).");
+      }
+
+      checkMissionCompletion();
+      updateDisplay();
+    }
+
+
+    // --- Powiadomienia (bez zmian) ---
+    function showNotification(message, type = 'info', duration = 3000) { /* ... kod showNotification ... */ if (notificationTimeout) { clearTimeout(notificationTimeout); dom.notificationBar.className = ''; } dom.notificationBar.textContent = message; dom.notificationBar.classList.add('show', type); notificationTimeout = setTimeout(() => { dom.notificationBar.classList.remove('show'); }, duration); }
+
+    // --- Inicjalizacja Gry (bez zmian) ---
+    document.addEventListener('DOMContentLoaded', () => {
+      loadGame();
+      dom.clickerBtn.addEventListener('click', clickButton);
+      dom.prestigeBtn.addEventListener('click', prestige);
+      setInterval(gameLoop, 1000);
+      setInterval(frequentUpdate, 200);
+      setInterval(saveGame, 5000);
+    });
+
+  </script>
+</body>
+</html>
